@@ -135,10 +135,7 @@ def main(_):
             )
             train(model, session)
         else:
-            session = tf.train.MonitoredTrainingSession(
-                          checkpoint_dir=cfg.checkpoint_dir,
-                          save_summaries_steps=cfg.save_summaries_steps,
-                      )
+            session = tf.train.MonitoredSession()
             evaluation(model, session, saver)
 
 if __name__ == "__main__":
