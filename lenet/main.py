@@ -1,4 +1,5 @@
 import os
+import shutil
 import numpy as np
 import tensorflow as tf
 from tqdm import tqdm
@@ -40,6 +41,17 @@ def save_to():
         fd_test_acc = open(test_acc, 'w')
         fd_test_acc.write('test_acc\n')
         return(fd_test_acc)
+
+
+def prepare_output_dir():
+    if os.path.exists(cfg.results):
+        shutil.rmtree(cfg.results)
+
+    if os.path.exists(cfg.checkpoint_dir):
+        shutil.rmtree(cfg.checkpoint_dir)
+
+    if os.path.exists(cfg.logdir):
+        shutil.rmtree(cfg.logdir)
 
 
 def train(model, session):
@@ -116,6 +128,9 @@ def evaluation(model, session, saver):
 
 
 def main(_):
+    if cfg.is_training:
+        prepare_output_dir()
+
     graph = tf.Graph()
     with graph.as_default():
         model = LeNet()
