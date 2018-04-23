@@ -92,11 +92,11 @@ def train(model, session):
         fd_loss.close()
 
 
-def evaluation(model, session):
-    teX, teY, num_te_batch = load_centered(cfg.dataset, cfg.batch_size, is_training=False)
+def evaluation(model, session, saver):
+    teX, teY, num_te_batch = load_centered(is_training=False)
     fd_test_acc = save_to()
-    with session.managed_session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
-        session.saver.restore(sess, tf.train.latest_checkpoint(cfg.logdir))
+    with session as sess:
+        saver.restore(sess, tf.train.latest_checkpoint(cfg.checkpoint_dir))
         tf.logging.info('Model restored!')
 
         test_acc = 0
@@ -104,12 +104,12 @@ def evaluation(model, session):
             start = i * cfg.batch_size
             end = start + cfg.batch_size
 
-            acc, _ = sess.run([model.accuracy, model.train_summary],
-                              {model.X: teX[start:end], model.labels: teY[start:end]})
+            acc = sess.run(model.accuracy,
+                           {model.images: teX[start:end], model.tmp_labels: teY[start:end]})
 
             test_acc += acc
 
-        test_acc = test_acc / (cfg.batch_size * num_te_batch)
+        test_acc = test_acc / (num_te_batch)
         fd_test_acc.write(str(test_acc))
         fd_test_acc.close()
         print('Test accuracy has been saved to ' + cfg.results + '/test_accuracy.txt')
@@ -119,26 +119,27 @@ def main(_):
     graph = tf.Graph()
     with graph.as_default():
         model = LeNet()
-        
+        saver = tf.train.Saver()
+
         if cfg.is_training:
             session = tf.train.MonitoredTrainingSession(
-                          checkpoint_dir=cfg.checkpoint_dir,
-                          save_checkpoint_secs=cfg.save_checkpoint_secs,
-                          save_summaries_steps=cfg.save_summaries_steps,
-                          hooks=[tf.train.NanTensorHook(model.loss),
-                                 tf.train.StepCounterHook(),
-                                 tf.train.SummarySaverHook(save_steps=cfg.train_sum_freq,
-                                                           output_dir=cfg.logdir,
-                                                           summary_op=model.train_summary)],
-                      )
+                save_checkpoint_secs=cfg.save_checkpoint_secs,
+                save_summaries_steps=cfg.save_summaries_steps,
+                hooks=[tf.train.NanTensorHook(model.loss),
+                       tf.train.CheckpointSaverHook(checkpoint_dir=cfg.checkpoint_dir,
+                                                    save_steps=cfg.save_checkpoint_secs,
+                                                    saver=saver),
+                       tf.train.SummarySaverHook(save_steps=cfg.train_sum_freq,
+                                                 output_dir=cfg.logdir,
+                                                 summary_op=model.train_summary)],
+            )
             train(model, session)
         else:
             session = tf.train.MonitoredTrainingSession(
                           checkpoint_dir=cfg.checkpoint_dir,
-                          save_checkpoint_secs=cfg.save_checkpoint_secs,
                           save_summaries_steps=cfg.save_summaries_steps,
                       )
-            evaluation(model, session)
+            evaluation(model, session, saver)
 
 if __name__ == "__main__":
     tf.app.run()
