@@ -74,6 +74,7 @@ def train(model, session):
                 global_step = epoch * num_tr_batch + step
 
                 if global_step % cfg.train_sum_freq == 0:
+                    # Accuracy with training data
                     _, loss, train_acc = sess.run(
                             [model.train_op, model.loss, model.accuracy])
                     assert not np.isnan(loss), 'Something wrong! loss is nan...'
@@ -86,6 +87,7 @@ def train(model, session):
                     sess.run(model.train_op)
 
                 if cfg.val_sum_freq != 0 and (global_step) % cfg.val_sum_freq == 0:
+                    # Eval data
                     val_acc = 0
                     for i in range(num_val_batch):
                         start = i * cfg.batch_size
@@ -138,11 +140,11 @@ def main(_):
 
         if cfg.is_training:
             session = tf.train.MonitoredTrainingSession(
-                save_checkpoint_secs=cfg.save_checkpoint_secs,
+                save_checkpoint_steps=cfg.save_checkpoint_steps,
                 save_summaries_steps=cfg.save_summaries_steps,
                 hooks=[tf.train.NanTensorHook(model.loss),
                        tf.train.CheckpointSaverHook(checkpoint_dir=cfg.checkpoint_dir,
-                                                    save_steps=cfg.save_checkpoint_secs,
+                                                    save_steps=cfg.save_checkpoint_steps,
                                                     saver=saver),
                        tf.train.SummarySaverHook(save_steps=cfg.train_sum_freq,
                                                  output_dir=cfg.logdir,

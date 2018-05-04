@@ -66,8 +66,8 @@ def load_centered(is_training):
 
     else:
         # NOTE: Swap those two lines below to get some basic transformed test
-        #data_file = os.path.join(cfg.data_dir, 'transformed', 'test_batches', '10.mat')
-        data_file = os.path.join(cfg.data_dir, 'just_centered', 'test.mat')
+        data_file = os.path.join(cfg.data_dir, 'transformed', 'test_batches', '1.mat')
+        #data_file = os.path.join(cfg.data_dir, 'just_centered', 'test.mat')
         data = loadmat(data_file)
         images = data['affNISTdata']['image'].transpose().reshape(10000, 40, 40, 1).astype(np.float32)
         labels = data['affNISTdata']['label_int'].astype(np.float32)
