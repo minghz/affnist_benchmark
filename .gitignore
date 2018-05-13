@@ -1,4 +1,5 @@
 *.swp
+*.swo
 
 affMNIST_data/
 lenet/__pycache__/
