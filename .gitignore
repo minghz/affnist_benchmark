@@ -7,3 +7,8 @@ lenet/__pycache__/
 lenet/results/
 lenet/logdir/
 lenet/checkpoint_dir/
+
+lenet2/__pycache__/
+lenet2/results/
+lenet2/logdir/
+lenet2/checkpoint_dir/
