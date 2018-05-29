@@ -3,6 +3,7 @@ import shutil
 import numpy as np
 import tensorflow as tf
 from tqdm import tqdm
+from datetime import datetime
 
 from config import cfg
 from load_data import load_centered
@@ -45,7 +46,8 @@ def save_to():
 
 def prepare_output_dir():
     if os.path.exists(cfg.results):
-        shutil.rmtree(cfg.results)
+        os.rename(cfg.results, cfg.results + datetime.now().isoformat())
+        #shutil.rmtree(cfg.results)
 
     if os.path.exists(cfg.checkpoint_dir):
         shutil.rmtree(cfg.checkpoint_dir)
