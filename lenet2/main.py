@@ -45,7 +45,8 @@ def save_to():
 
 def prepare_output_dir():
     if os.path.exists(cfg.results):
-        shutil.rmtree(cfg.results)
+        os.rename(cfg.results, cfg.results + datetime.now().isoformat())
+        #shutil.rmtree(cfg.results)
 
     if os.path.exists(cfg.checkpoint_dir):
         shutil.rmtree(cfg.checkpoint_dir)
