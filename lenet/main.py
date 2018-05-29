@@ -3,6 +3,7 @@ import shutil
 import numpy as np
 import tensorflow as tf
 from tqdm import tqdm
+from datetime import datetime
 
 from config import cfg
 from load_data import load_centered
@@ -45,7 +46,8 @@ def save_to():
 
 def prepare_output_dir():
     if os.path.exists(cfg.results):
-        shutil.rmtree(cfg.results)
+        os.rename(cfg.results, cfg.results + datetime.now().isoformat())
+        #shutil.rmtree(cfg.results)
 
     if os.path.exists(cfg.checkpoint_dir):
         shutil.rmtree(cfg.checkpoint_dir)
@@ -135,12 +137,12 @@ def main(_):
 
     graph = tf.Graph()
     with graph.as_default():
+        tf.set_random_seed(1)
         model = LeNet()
         saver = tf.train.Saver()
 
         if cfg.is_training:
             session = tf.train.MonitoredTrainingSession(
-                save_checkpoint_steps=cfg.save_checkpoint_steps,
                 save_summaries_steps=cfg.save_summaries_steps,
                 hooks=[tf.train.NanTensorHook(model.loss),
                        tf.train.CheckpointSaverHook(checkpoint_dir=cfg.checkpoint_dir,
