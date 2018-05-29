@@ -43,42 +43,37 @@ def _todict(matobj):
 
 
 def load_centered(is_training):
-    print('Loading centered images')
-
+    path = os.path.join('../mnist_data', 'mnist')
     if is_training:
-        data_file = os.path.join(cfg.data_dir, 'just_centered', 'training_and_validation.mat')
-        data = loadmat(data_file)
-        images = data['affNISTdata']['image'].transpose().reshape(60000, 40, 40, 1).astype(np.float32)
-        labels = data['affNISTdata']['label_int'].astype(np.uint8)
-        assert images.shape == (60000, 40, 40, 1)
-        assert labels.shape == (60000,)
+        fd = open(os.path.join(path, 'train-images-idx3-ubyte'))
+        loaded = np.fromfile(file=fd, dtype=np.uint8)
+        trainX = loaded[16:].reshape((60000, 28, 28, 1)).astype(np.float32)
 
-        trX = images[:50000] / 255.
-        trY = labels[:50000]
+        fd = open(os.path.join(path, 'train-labels-idx1-ubyte'))
+        loaded = np.fromfile(file=fd, dtype=np.uint8)
+        trainY = loaded[8:].reshape((60000)).astype(np.int32)
 
-        valX = images[10000:, ] / 255.
-        valY = labels[10000:]
+        trX = trainX[:55000] / 255.
+        trY = trainY[:55000]
 
-        num_tr_batch = 50000 // cfg.batch_size
-        num_val_batch = 10000 // cfg.batch_size
+        valX = trainX[55000:, ] / 255.
+        valY = trainY[55000:]
+
+        num_tr_batch = 55000 // cfg.batch_size
+        num_val_batch = 5000 // cfg.batch_size
 
         return trX, trY, num_tr_batch, valX, valY, num_val_batch
-
     else:
-        # NOTE: Swap those two lines below to get some basic transformed test
-        data_file = os.path.join(cfg.data_dir, 'transformed', 'test_batches', '1.mat')
-        #data_file = os.path.join(cfg.data_dir, 'just_centered', 'test.mat')
-        data = loadmat(data_file)
-        images = data['affNISTdata']['image'].transpose().reshape(10000, 40, 40, 1).astype(np.float32)
-        labels = data['affNISTdata']['label_int'].astype(np.float32)
-        assert images.shape == (10000, 40, 40, 1)
-        assert labels.shape == (10000,)
+        fd = open(os.path.join(path, 't10k-images-idx3-ubyte'))
+        loaded = np.fromfile(file=fd, dtype=np.uint8)
+        teX = loaded[16:].reshape((10000, 28, 28, 1)).astype(np.float)
 
-        imgs = images / 255.
-        labs = labels
+        fd = open(os.path.join(path, 't10k-labels-idx1-ubyte'))
+        loaded = np.fromfile(file=fd, dtype=np.uint8)
+        teY = loaded[8:].reshape((10000)).astype(np.int32)
+
         num_te_batch = 10000 // cfg.batch_size
-
-        return imgs, labs, num_te_batch
+        return teX / 255., teY, num_te_batch
 
 
 def load_transformed():
@@ -93,10 +88,10 @@ def get_batch(use_just_centered=True, is_training=True):
         trX, trY, num_tr_batch, valX, valY, num_val_batch = load_transformed(is_training)
 
     data_queues = tf.train.slice_input_producer([trX, trY])
-    X, Y = tf.train.shuffle_batch(data_queues,
-                                  num_threads=8,
-                                  batch_size=cfg.batch_size,
-                                  capacity=cfg.batch_size * 64,
-                                  min_after_dequeue=cfg.batch_size * 32,
-                                  allow_smaller_final_batch=False)
+    X, Y = tf.train.batch(data_queues,
+                          batch_size=cfg.batch_size,
+                          num_threads=1,
+                          capacity=cfg.batch_size * 64,
+                          enqueue_many=False,
+                          allow_smaller_final_batch=False)
     return X, Y

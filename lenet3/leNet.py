@@ -25,7 +25,7 @@ class LeNet(object):
                 self.optimizer = tf.train.AdamOptimizer()
                 self.train_op = self.optimizer.minimize(self.loss, global_step=self.global_step)
             else:
-                self.images = tf.placeholder(tf.uint8, shape=(cfg.batch_size, 40, 40, 1))
+                self.images = tf.placeholder(tf.uint8, shape=(cfg.batch_size, 28, 28, 1))
                 self.labels = tf.placeholder(tf.uint8, shape=(cfg.batch_size, 10, 1))
                 self.build_arch()
 
@@ -33,42 +33,50 @@ class LeNet(object):
     def build_arch(self):
         with tf.variable_scope('c1'):
             c1 = tf.layers.conv2d(self.images,
-                                  filters=6,
+                                  padding='same',
+                                  filters=32,
                                   kernel_size=5,
+                                  kernel_initializer=tf.constant_initializer(0.5),
                                   strides=1)
-            assert c1.shape == (cfg.batch_size, 36, 36, 6)
+            assert c1.shape == (cfg.batch_size, 28, 28, 32)
 
         with tf.variable_scope('s2'):
             # TODO Use sub-sampling as defined on paper, not max-pooling
             s2 = tf.layers.max_pooling2d(c1,
                                          pool_size=2,
                                          strides=2)
-            assert s2.shape == (cfg.batch_size, 18, 18, 6)
+            assert s2.shape == (cfg.batch_size, 14, 14, 32)
 
         with tf.variable_scope('c3'):
             c3 = tf.layers.conv2d(s2,
-                                  filters=16,
+                                  padding='same',
+                                  filters=64,
                                   kernel_size=5,
+                                  kernel_initializer=tf.constant_initializer(0.5),
                                   strides=1)
-            assert c3.shape == (cfg.batch_size, 14, 14, 16)
+            assert c3.shape == (cfg.batch_size, 14, 14, 64)
 
         with tf.variable_scope('s4'):
             # TODO Use sub-sampling as defined on paper, not max-pooling
             s4 = tf.layers.max_pooling2d(c3,
                                          pool_size=2,
                                          strides=2)
-            assert s4.shape == (cfg.batch_size, 7, 7, 16)
+            assert s4.shape == (cfg.batch_size, 7, 7, 64)
 
         with tf.variable_scope('flat5'):
-            flat5 = tf.reshape(s4, [-1, 7 * 7 * 16])
-            assert flat5.shape == (cfg.batch_size, 7 * 7 * 16)
+            flat5 = tf.reshape(s4, [-1, 7 * 7 * 64])
+            assert flat5.shape == (cfg.batch_size, 7 * 7 * 64)
 
         with tf.variable_scope('f6'):
-            f6 = tf.contrib.layers.fully_connected(flat5, num_outputs=84)
-            assert f6.shape == (cfg.batch_size, 84)
+            f6 = tf.contrib.layers.fully_connected(flat5,
+                                                   num_outputs=1024,
+                                                   weights_initializer=tf.constant_initializer(0.5))
+            assert f6.shape == (cfg.batch_size, 1024)
 
         with tf.variable_scope('output'):
-            self.output = tf.contrib.layers.fully_connected(f6, num_outputs=10)
+            self.output = tf.contrib.layers.fully_connected(f6,
+                                                            num_outputs=10,
+                                                            weights_initializer=tf.constant_initializer(0.5))
             assert self.output.shape == (cfg.batch_size, 10)
 
 
