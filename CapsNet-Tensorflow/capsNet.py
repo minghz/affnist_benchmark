@@ -18,25 +18,23 @@ epsilon = 1e-9
 
 class CapsNet(object):
     def __init__(self, is_training=True):
-        self.graph = tf.Graph()
-        with self.graph.as_default():
-            if is_training:
-                self.X, self.labels = get_batch_data(cfg.dataset, cfg.batch_size, cfg.num_threads)
-                self.Y = tf.one_hot(self.labels, depth=10, axis=1, dtype=tf.float32)
+        if is_training:
+            self.X, self.labels = get_batch_data(cfg.dataset, cfg.batch_size, cfg.num_threads)
+            self.Y = tf.one_hot(self.labels, depth=10, axis=1, dtype=tf.float32)
 
-                self.build_arch()
-                self.loss()
-                self._summary()
+            self.build_arch()
+            self.loss()
+            self._summary()
 
-                # t_vars = tf.trainable_variables()
-                self.global_step = tf.Variable(0, name='global_step', trainable=False)
-                self.optimizer = tf.train.AdamOptimizer()
-                self.train_op = self.optimizer.minimize(self.total_loss, global_step=self.global_step)  # var_list=t_vars)
-            else:
-                self.X = tf.placeholder(tf.float32, shape=(cfg.batch_size, 40, 40, 1))
-                self.labels = tf.placeholder(tf.int32, shape=(cfg.batch_size, ))
-                self.Y = tf.reshape(self.labels, shape=(cfg.batch_size, 10, 1))
-                self.build_arch()
+            # t_vars = tf.trainable_variables()
+            self.global_step = tf.Variable(0, name='global_step', trainable=False)
+            self.optimizer = tf.train.AdamOptimizer()
+            self.train_op = self.optimizer.minimize(self.total_loss, global_step=self.global_step)  # var_list=t_vars)
+        else:
+            self.X = tf.placeholder(tf.float32, shape=(cfg.batch_size, 40, 40, 1))
+            self.labels = tf.placeholder(tf.int32, shape=(cfg.batch_size, ))
+            self.Y = tf.reshape(self.labels, shape=(cfg.batch_size, 10, 1))
+            self.build_arch()
 
         tf.logging.info('Seting up the main structure')
 

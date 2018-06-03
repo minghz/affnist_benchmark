@@ -1,8 +1,10 @@
 import os
 import sys
+import shutil
 import numpy as np
 import tensorflow as tf
 from tqdm import tqdm
+from datetime import datetime
 
 from config import cfg
 from utils import load_data
@@ -40,19 +42,31 @@ def save_to():
         return(fd_test_acc)
 
 
-def train(model, supervisor, num_label):
+def prepare_output_dir():
+    if os.path.exists(cfg.results):
+        os.rename(cfg.results, cfg.results + datetime.now().isoformat())
+        #shutil.rmtree(cfg.results)
+
+    if os.path.exists(cfg.checkpoint_dir):
+        shutil.rmtree(cfg.checkpoint_dir)
+
+    if os.path.exists(cfg.logdir):
+        shutil.rmtree(cfg.logdir)
+
+
+def train(model, session):
     trX, trY, num_tr_batch, valX, valY, num_val_batch = load_data(cfg.dataset, cfg.batch_size, is_training=True)
-    Y = valY[:num_val_batch * cfg.batch_size].reshape((-1, 1))
 
     fd_train_acc, fd_loss, fd_val_acc = save_to()
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
-    with supervisor.managed_session(config=config) as sess:
+
+    with session as sess:
         print("\nNote: all of results will be saved to directory: " + cfg.results)
         for epoch in range(cfg.epoch):
             print("Training for epoch %d/%d:" % (epoch, cfg.epoch))
-            if supervisor.should_stop():
-                print('supervisor stoped!')
+            if session.should_stop():
+                print('session stoped!')
                 break
             for step in tqdm(range(num_tr_batch), total=num_tr_batch, ncols=70, leave=False, unit='b'):
                 start = step * cfg.batch_size
@@ -60,10 +74,9 @@ def train(model, supervisor, num_label):
                 global_step = epoch * num_tr_batch + step
 
                 if global_step % cfg.train_sum_freq == 0:
-                    _, loss, train_acc, summary_str = sess.run(
-                            [model.train_op, model.total_loss, model.accuracy, model.train_summary])
+                    _, loss, train_acc = sess.run(
+                            [model.train_op, model.total_loss, model.accuracy])
                     assert not np.isnan(loss), 'Something wrong! loss is nan...'
-                    supervisor.summary_writer.add_summary(summary_str, global_step)
 
                     fd_loss.write(str(global_step) + ',' + str(loss) + "\n")
                     fd_loss.flush()
@@ -86,27 +99,26 @@ def train(model, supervisor, num_label):
                     fd_val_acc.write(str(global_step) + ',' + str(val_acc) + '\n')
                     fd_val_acc.flush()
 
-            #if (epoch + 1) % cfg.save_freq == 0:
-            if (global_step + 1) % cgf.save_freq_step == 0:
-                supervisor.saver.save(sess, cfg.logdir + '/model_epoch_%04d_step_%02d' % (epoch, global_step))
 
         fd_val_acc.close()
         fd_train_acc.close()
         fd_loss.close()
 
 
-def evaluation(model, supervisor, num_label):
+def evaluation(model, session, saver):
     teX, teY, num_te_batch = load_data(cfg.dataset, cfg.batch_size, is_training=False)
     fd_test_acc = save_to()
-    with supervisor.managed_session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
-        supervisor.saver.restore(sess, tf.train.latest_checkpoint(cfg.logdir))
+    with session as sess:
+        saver.restore(sess, tf.train.latest_checkpoint(cfg.checkpoint_dir))
+        print('model restoreeeeeeeeeeeeeeed')
         tf.logging.info('Model restored!')
 
         test_acc = 0
         for i in tqdm(range(num_te_batch), total=num_te_batch, ncols=70, leave=False, unit='b'):
             start = i * cfg.batch_size
             end = start + cfg.batch_size
-            acc = sess.run(model.accuracy, {model.X: teX[start:end], model.labels: teY[start:end]})
+            acc = sess.run(model.accuracy,
+                           {model.X: teX[start:end], model.labels: teY[start:end]})
             test_acc += acc
         test_acc = test_acc / (cfg.batch_size * num_te_batch)
         fd_test_acc.write(str(test_acc))
@@ -115,19 +127,30 @@ def evaluation(model, supervisor, num_label):
 
 
 def main(_):
-    tf.logging.info(' Loading Graph...')
-    num_label = 10
-    model = CapsNet()
-    tf.logging.info(' Graph loaded')
-
-    sv = tf.train.Supervisor(graph=model.graph, logdir=cfg.logdir, save_model_secs=0)
-
     if cfg.is_training:
-        tf.logging.info(' Start training...')
-        train(model, sv, num_label)
-        tf.logging.info('Training done')
-    else:
-        evaluation(model, sv, num_label)
+        prepare_output_dir()
+
+    graph = tf.Graph()
+    with graph.as_default():
+        tf.set_random_seed(1)
+        model = CapsNet()
+        saver = tf.train.Saver()
+
+        if cfg.is_training:
+            session = tf.train.MonitoredTrainingSession(
+                hooks=[tf.train.NanTensorHook(model.total_loss),
+                       tf.train.CheckpointSaverHook(checkpoint_dir=cfg.checkpoint_dir,
+                                                    save_steps=cfg.save_checkpoint_steps,
+                                                    saver=saver),
+                       tf.train.SummarySaverHook(save_steps=cfg.train_sum_freq,
+                                                 output_dir=cfg.logdir,
+                                                 summary_op=model.train_summary)],
+            )
+            train(model, session)
+        else:
+            session = tf.train.MonitoredSession()
+            evaluation(model, session, saver)
+
 
 if __name__ == "__main__":
     tf.app.run()
