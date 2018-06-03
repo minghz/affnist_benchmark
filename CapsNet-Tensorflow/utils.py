@@ -139,7 +139,7 @@ def load_affmnist(batch_size, is_training=True):
         valX = images[10000:, ] / 255.
         valY = labels[10000:]
 
-        num_tr_batch = 50000 // cfg.batch_size
+        num_tr_batch = default_num_training_inputs // cfg.batch_size
         num_val_batch = 10000 // cfg.batch_size
 
         return trX, trY, num_tr_batch, valX, valY, num_val_batch
