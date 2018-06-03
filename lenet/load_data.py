@@ -46,28 +46,40 @@ def load_centered(is_training):
     print('Loading centered images')
 
     if is_training:
-        data_file = os.path.join(cfg.data_dir, 'just_centered', 'training_and_validation.mat')
-        data = loadmat(data_file)
-        images = data['affNISTdata']['image'].transpose().reshape(60000, 40, 40, 1).astype(np.float32)
-        labels = data['affNISTdata']['label_int'].astype(np.uint8)
-        assert images.shape == (60000, 40, 40, 1)
-        assert labels.shape == (60000,)
+        if cfg.peppered:
+            data_file = os.path.join(cfg.affmnist_data_dir,
+                                     'peppered_training_and_validation_batches',
+                                     cfg.peppered + '_percent.mat')
+        else:
+            data_file = os.path.join(cfg.affmnist_data_dir, 'just_centered', 'training_and_validation.mat')
 
-        trX = images[:50000] / 255.
-        trY = labels[:50000]
+        images_per_transformation = int((60000 * int(cfg.peppered)/100) / 32)
+        num_inputs = images_per_transformation * 32 + 60000
+
+
+        data = loadmat(data_file)
+        images = data['affNISTdata']['image'].transpose().reshape(num_inputs, 40, 40, 1).astype(np.float32)
+        labels = data['affNISTdata']['label_int'].astype(np.uint8)
+        assert images.shape == (num_inputs, 40, 40, 1)
+        assert labels.shape == (num_inputs,)
+
+        default_num_training_inputs = num_inputs - 10000
+
+        trX = images[:default_num_training_inputs] / 255.
+        trY = labels[:default_num_training_inputs]
 
         valX = images[10000:, ] / 255.
         valY = labels[10000:]
 
-        num_tr_batch = 50000 // cfg.batch_size
+        num_tr_batch = default_num_training_inputs // cfg.batch_size
         num_val_batch = 10000 // cfg.batch_size
 
         return trX, trY, num_tr_batch, valX, valY, num_val_batch
 
     else:
         # NOTE: Swap those two lines below to get some basic transformed test
-        data_file = os.path.join(cfg.data_dir, 'transformed', 'test_batches', '1.mat')
-        #data_file = os.path.join(cfg.data_dir, 'just_centered', 'test.mat')
+        data_file = os.path.join(cfg.affmnist_data_dir, 'transformed', 'test_batches', '15.mat')
+        #data_file = os.path.join(cfg.affmnist_data_dir, 'just_centered', 'test.mat')
         data = loadmat(data_file)
         images = data['affNISTdata']['image'].transpose().reshape(10000, 40, 40, 1).astype(np.float32)
         labels = data['affNISTdata']['label_int'].astype(np.float32)
