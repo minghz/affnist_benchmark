@@ -143,19 +143,19 @@ def main(_):
 
         if cfg.is_training:
             session = tf.train.MonitoredTrainingSession(
-                save_summaries_steps=cfg.save_summaries_steps,
                 hooks=[tf.train.NanTensorHook(model.loss),
                        tf.train.CheckpointSaverHook(checkpoint_dir=cfg.checkpoint_dir,
                                                     save_steps=cfg.save_checkpoint_steps,
                                                     saver=saver),
-                       tf.train.SummarySaverHook(save_steps=cfg.train_sum_freq,
-                                                 output_dir=cfg.logdir,
+                       tf.train.SummarySaverHook(output_dir=cfg.logdir,
+                                                 save_steps=cfg.train_sum_freq,
                                                  summary_op=model.train_summary)],
             )
             train(model, session)
         else:
             session = tf.train.MonitoredSession()
             evaluation(model, session, saver)
+
 
 if __name__ == "__main__":
     tf.app.run()
