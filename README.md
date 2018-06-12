@@ -13,3 +13,16 @@ Both aim to train for the affNIST dataset (distorted and tralsated MNIST dataset
     * We may start with the default 55000 training samples
     * Recude it to 40000, 30000, 20000
     * Compare accuracy numbers for BOTH models
+
+# Docker env setup
+Added custom modifications to run with affmnist dataset
+
+# Docker setup for nvidia-cuda
+
+* Build the image defined by the Dockerfile
+
+  `nvidia-docker build -t tensorflow_nvidia_docker_setup .`
+
+* Run an interactive bash sell within the container
+
+  `nvidia-docker run --rm -it tensorflow_nvidia_docker_setup bash`
