@@ -1,5 +1,6 @@
 *__pycache__
 data*
+checkpoint_dir/
 .ropeproject
 logdir*
 
@@ -7,3 +8,6 @@ logdir*
 *.swo
 
 results*
+
+*.pyc
+
