@@ -2,6 +2,8 @@
 *.swo
 .*.swn
 
+*.pyc
+
 affMNIST_data/
 mnist_data/
 
