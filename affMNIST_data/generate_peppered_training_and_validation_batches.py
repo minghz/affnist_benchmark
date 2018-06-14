@@ -3,7 +3,16 @@ import sys
 import numpy as np
 import scipy.io as spio
 
-# Constants
+# Downloading data
+# TODO: One day automate downloading input process
+HOMEPAGE = "https://www.cs.toronto.edu/~tijmen/affNIST/32x/"
+JUST_CENTERED_TEST_URL = HOMEPAGE + "just_centered/test.mat.zip"
+JUST_CENTERED_TRAINING_AND_VALIDATION_URL = HOMEPAGE + "just_centered/training_and_validation.mat.zip"
+TRANSFORMED_TEST_BATCHES_URL = HOMEPAGE + "transformed/test_batches.zip"
+TRANSFORMED_TRAINING_AND_VALIDATION_BATCHES_URL = HOMEPAGE + "transformed/training_and_validation_batches.zip"
+
+# Generate input
+TOTAL_TRAINING_IMAGES = 60000
 CENTERED_IMG_DIR = 'just_centered'
 TRANSFORMED_TRAINING_IMG_DIR = 'transformed/training_and_validation_batches'
 SAVE_DIR = 'peppered_training_and_validation_batches'
