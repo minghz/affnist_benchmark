@@ -2,6 +2,9 @@ import os
 import sys
 import numpy as np
 import scipy.io as spio
+import pdb #debugger
+
+TOTAL_TRAINING_IMAGES = 60000
 
 
 def loadmat(filename):
@@ -40,17 +43,43 @@ def _todict(matobj):
     return dict
 
 
-def validate(filename):
-    print('Validating ' + filename, end='\r')
+def validate_base_and_peppered(percent_centered, percent_peppered):
+    percent_centered = int(filename.split('_')[0])
+    percent_peppered = int(filename.split('_')[3])
 
-    percentage_additional_img = int(filename.split('_')[0])
-    images_per_transformation = int((60000 * percentage_additional_img/100.0) / 32)
+    images_per_transformation = int((TOTAL_TRAINING_IMAGES * percent_peppered/100.0) / 32)
+    num_img_peppered = images_per_transformation * 32
+
+    num_img_base = int(TOTAL_TRAINING_IMAGES * percent_centered/100.0)
+
+    data = loadmat(filename)
+    assert data['affNISTdata']['image'].shape == (1600, num_img_base + num_img_peppered)
+    
+    print(filename + ' OK. Centered: ' + str(num_img_base) + ' Peppered: ' + str(num_img_peppered) + ' Total: ' + str(num_img_base + num_img_peppered))
+
+
+def validate_peppered(percent_peppered):
+    percent_peppered = int(filename.split('_')[0])
+
+    images_per_transformation = int((TOTAL_TRAINING_IMAGES * percent_peppered/100.0) / 32)
     num_img_peppered = images_per_transformation * 32
 
     data = loadmat(filename)
-    assert data['affNISTdata']['image'].shape == (1600, 60000 + num_img_peppered)
-    
-    print(filename + ' OK. Peppered inputs: ' + str(num_img_peppered))
+
+    assert data['affNISTdata']['image'].shape == (1600, TOTAL_TRAINING_IMAGES + num_img_peppered)
+
+    print(filename + ' OK. Centered: ' + str(TOTAL_TRAINING_IMAGES) + ' Peppered: ' + str(num_img_peppered) + ' Total: ' + str(TOTAL_TRAINING_IMAGES + num_img_peppered))
+
+
+def validate(filename):
+    print('Validating ' + filename, end='\r')
+
+    filename_array = filename.split('_')
+    if len(filename_array) > 2:
+        validate_base_and_peppered(filename_array[0], filename_array[3])
+    else:
+        validate_peppered(filename_array[0])
+
 
 if __name__ == '__main__':
     for filename in os.listdir('.'):
