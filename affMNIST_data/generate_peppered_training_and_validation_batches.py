@@ -53,11 +53,14 @@ def _todict(matobj):
     return dict
 
 
-def centered_input_dict():
+def centered_input_dict(percent):
     data_file = os.path.join(CENTERED_IMG_DIR, 'training_and_validation.mat')
     data = loadmat(data_file)
-    return {'affNISTdata': {'image': data['affNISTdata']['image'],
-                            'label_int': data['affNISTdata']['label_int']}}
+
+    number_images = int(TOTAL_TRAINING_IMAGES * percent/100.0)
+
+    return {'affNISTdata': {'image': data['affNISTdata']['image'][:, :number_images],
+                            'label_int': data['affNISTdata']['label_int'][:, :number_images]}}, number_images
 
 
 def generate_peppered(percentage_of_centered_images, percentage_of_transformed_images):
@@ -67,7 +70,7 @@ def generate_peppered(percentage_of_centered_images, percentage_of_transformed_i
     num_img_to_pepper = images_per_transformation * 32
     num_img_peppered = 0
 
-    peppered = centered_input_dict()
+    peppered, num_img_base = centered_input_dict(percentage_of_centered_images)
 
     for t in range(1, 33):
         data_file = os.path.join(TRANSFORMED_TRAINING_IMG_DIR, str(t) + '.mat')
@@ -90,12 +93,12 @@ def generate_peppered(percentage_of_centered_images, percentage_of_transformed_i
         peppered['affNISTdata']['label_int'] = np.append(peppered['affNISTdata']['label_int'], labels_sample)
 
         num_img_peppered = t * images_per_transformation
-        assert peppered['affNISTdata']['image'].shape == (1600, num_img_peppered + TOTAL_TRAINING_IMAGES)
-        assert peppered['affNISTdata']['label_int'].shape == (num_img_peppered + TOTAL_TRAINING_IMAGES,)
+        assert peppered['affNISTdata']['image'].shape == (1600, num_img_peppered + num_img_base)
+        assert peppered['affNISTdata']['label_int'].shape == (num_img_peppered + num_img_base,)
         print('Generating... ' + str(int(num_img_peppered/num_img_to_pepper * 100)) + '%', end='\r')
 
-    assert peppered['affNISTdata']['image'].shape == (1600, TOTAL_TRAINING_IMAGES + num_img_to_pepper)
-    assert peppered['affNISTdata']['label_int'].shape == (TOTAL_TRAINING_IMAGES + num_img_to_pepper,)
+    assert peppered['affNISTdata']['image'].shape == (1600, num_img_base + num_img_to_pepper)
+    assert peppered['affNISTdata']['label_int'].shape == (num_img_base + num_img_to_pepper,)
 
     save_file = os.path.join(SAVE_DIR, str(percentage_of_transformed_images) + '_percent.mat')
     spio.savemat(save_file, peppered)
