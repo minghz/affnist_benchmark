@@ -69,11 +69,10 @@ def generate_peppered(percentage_of_centered_images, percentage_of_transformed_i
 
     peppered = centered_input_dict()
 
-    # Load centered MNIST
-    data_file = os.path.join(TRANSFORMED_TRAINING_IMG_DIR, str(t) + '.mat')
-    data = loadmat(data_file)
-
     for t in range(1, 33):
+        data_file = os.path.join(TRANSFORMED_TRAINING_IMG_DIR, str(t) + '.mat')
+        data = loadmat(data_file)
+
         images = data['affNISTdata']['image'].transpose().reshape(TOTAL_TRAINING_IMAGES, 40, 40, 1).astype(np.float32)
         labels = data['affNISTdata']['label_int'].astype(np.uint8)
         
