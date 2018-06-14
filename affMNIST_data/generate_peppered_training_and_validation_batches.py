@@ -64,14 +64,14 @@ def centered_input_dict(percent):
                             'label_int': data['affNISTdata']['label_int'][:number_images]}}, number_images
 
 
-def generate_peppered(percentage_of_centered_images, percentage_of_transformed_images):
-    check_output_dir(percentage_of_centered_images, percentage_of_transformed_images)
+def generate_peppered(percentage_centered, percentage_transformed):
+    check_output_dir(percentage_centered, percentage_transformed)
 
-    images_per_transformation = int((TOTAL_TRAINING_IMAGES * percentage_of_transformed_images/100.0) / 32)
+    images_per_transformation = int((TOTAL_TRAINING_IMAGES * percentage_transformed/100.0) / 32)
     num_img_to_pepper = images_per_transformation * 32
     num_img_peppered = 0
 
-    peppered, num_img_base = centered_input_dict(percentage_of_centered_images)
+    peppered, num_img_base = centered_input_dict(percentage_centered)
 
     for t in range(1, 33):
         data_file = os.path.join(TRANSFORMED_TRAINING_IMG_DIR, str(t) + '.mat')
@@ -101,7 +101,7 @@ def generate_peppered(percentage_of_centered_images, percentage_of_transformed_i
     assert peppered['affNISTdata']['image'].shape == (1600, num_img_base + num_img_to_pepper)
     assert peppered['affNISTdata']['label_int'].shape == (num_img_base + num_img_to_pepper,)
 
-    save_file = os.path.join(SAVE_DIR, str(percentage_of_transformed_images) + '_percent.mat')
+    save_file = os.path.join(SAVE_DIR, output_file_name(percentage_centered, percentage_transformed))
     spio.savemat(save_file, peppered)
 
 
@@ -109,17 +109,25 @@ def check_output_dir(percentage_centered, percentage_transformed):
     if not os.path.exists(SAVE_DIR):
         os.mkdir(SAVE_DIR)
 
+    peppered_file = output_file_name(percentage_centered, percentage_transformed)
+
+    if os.path.exists(peppered_file):
+        print('Error: '+ peppered_file +' exists, remove manually to not overwrite')
+        sys.exit()
+
+
+def output_file_name(percentage_centered, percentage_transformed):
+    filename = ''
+
     if percentage_centered != 100:
         filename = str(percentage_centered) + '_percent_centered_' + str(percentage_transformed) + '_percent_transformed.mat'
         peppered_file = os.path.join(SAVE_DIR, filename)
     else:
         filename = str(percentage_transformed) + '_percent.mat'
         peppered_file = os.path.join(SAVE_DIR, filename)
-    
-    if os.path.exists(peppered_file):
-        print('Error: '+ peppered_file +' exists, remove manually to not overwrite')
-        sys.exit()
+ 
+    return filename
 
 
 if __name__ == '__main__':
-    generate_peppered(100, 30)
+    generate_peppered(50, 30)
