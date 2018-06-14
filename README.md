@@ -8,10 +8,15 @@ Both aim to train for the affNIST dataset (distorted and tralsated MNIST dataset
 
 # Description of content #
 `affMNIST_data/` - Contains all affMNIST input data to train the models
+
 `CapsNet-Tensorflow` - CapsNet code. Modified from [naturomics/CapsNet-Tensorflow](https://github.com/naturomics/CapsNet-Tensorflow)
+
 `lenet/` - LeNet-5 model with a few modifications
+
 `lenet2/` - Variation on `lenet/` (using Supervisor instead of MonitoredTrainingSession)
+
 `lenet3/` - Variation on `lenet/` (regress to take 28x28 size mnist inputs)
+
 `Dockerfile run.sh` - Used to create Docker images and run on NVIDIA CUDA GPU
 
 # Benchmarks #
