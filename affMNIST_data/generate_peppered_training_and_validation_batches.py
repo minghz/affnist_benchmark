@@ -2,6 +2,7 @@ import os
 import sys
 import numpy as np
 import scipy.io as spio
+import pdb #debugger
 
 # Downloading data
 # TODO: One day automate downloading input process
@@ -58,9 +59,9 @@ def centered_input_dict(percent):
     data = loadmat(data_file)
 
     number_images = int(TOTAL_TRAINING_IMAGES * percent/100.0)
-
+    
     return {'affNISTdata': {'image': data['affNISTdata']['image'][:, :number_images],
-                            'label_int': data['affNISTdata']['label_int'][:, :number_images]}}, number_images
+                            'label_int': data['affNISTdata']['label_int'][:number_images]}}, number_images
 
 
 def generate_peppered(percentage_of_centered_images, percentage_of_transformed_images):
