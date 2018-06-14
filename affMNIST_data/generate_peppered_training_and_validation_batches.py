@@ -74,6 +74,10 @@ def generate_peppered(percentage_centered, percentage_transformed):
     peppered, num_img_base = centered_input_dict(percentage_centered)
 
     for t in range(1, 33):
+        if num_img_to_pepper == 0:
+            continue
+            # NOTE: Can move for loop into another method
+
         data_file = os.path.join(TRANSFORMED_TRAINING_IMG_DIR, str(t) + '.mat')
         data = loadmat(data_file)
 
@@ -96,13 +100,20 @@ def generate_peppered(percentage_centered, percentage_transformed):
         num_img_peppered = t * images_per_transformation
         assert peppered['affNISTdata']['image'].shape == (1600, num_img_peppered + num_img_base)
         assert peppered['affNISTdata']['label_int'].shape == (num_img_peppered + num_img_base,)
-        print('Generating... ' + str(int(num_img_peppered/num_img_to_pepper * 100)) + '%', end='\r')
+        print_progress(num_img_peppered, num_img_to_pepper)
 
     assert peppered['affNISTdata']['image'].shape == (1600, num_img_base + num_img_to_pepper)
     assert peppered['affNISTdata']['label_int'].shape == (num_img_base + num_img_to_pepper,)
 
     save_file = os.path.join(SAVE_DIR, output_file_name(percentage_centered, percentage_transformed))
     spio.savemat(save_file, peppered)
+
+
+def print_progress(num_img_peppered, num_img_to_pepper):
+    if num_img_peppered == 0:
+        print('Generating subset of centered... ', end='\r')
+    else:
+        print('Generating... ' + str(int(num_img_peppered/num_img_to_pepper * 100)) + '%', end='\r')
 
 
 def check_output_dir(percentage_centered, percentage_transformed):
@@ -119,7 +130,7 @@ def check_output_dir(percentage_centered, percentage_transformed):
 def output_file_name(percentage_centered, percentage_transformed):
     filename = ''
 
-    if percentage_centered != 100:
+    if percentage_centered != 100 or percentage_transformed == 0:
         filename = str(percentage_centered) + '_percent_centered_' + str(percentage_transformed) + '_percent_transformed.mat'
         peppered_file = os.path.join(SAVE_DIR, filename)
     else:
@@ -130,4 +141,4 @@ def output_file_name(percentage_centered, percentage_transformed):
 
 
 if __name__ == '__main__':
-    generate_peppered(50, 30)
+    generate_peppered(20, 80)
