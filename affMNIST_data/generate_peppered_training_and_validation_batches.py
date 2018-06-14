@@ -60,19 +60,21 @@ def centered_input_dict():
                             'label_int': data['affNISTdata']['label_int']}}
 
 
-def generate_peppered(percentage_of_transformed_images):
-    check_output_dir(percentage_of_transformed_images)
-    images_per_transformation = int((60000 * percentage_of_transformed_images/100.0) / 32)
+def generate_peppered(percentage_of_centered_images, percentage_of_transformed_images):
+    check_output_dir(percentage_of_centered_images, percentage_of_transformed_images)
+
+    images_per_transformation = int((TOTAL_TRAINING_IMAGES * percentage_of_transformed_images/100.0) / 32)
     num_img_to_pepper = images_per_transformation * 32
     num_img_peppered = 0
 
     peppered = centered_input_dict()
 
-    for t in range(1, 33):
-        data_file = os.path.join(TRANSFORMED_TRAINING_IMG_DIR, str(t) + '.mat')
-        data = loadmat(data_file)
+    # Load centered MNIST
+    data_file = os.path.join(TRANSFORMED_TRAINING_IMG_DIR, str(t) + '.mat')
+    data = loadmat(data_file)
 
-        images = data['affNISTdata']['image'].transpose().reshape(60000, 40, 40, 1).astype(np.float32)
+    for t in range(1, 33):
+        images = data['affNISTdata']['image'].transpose().reshape(TOTAL_TRAINING_IMAGES, 40, 40, 1).astype(np.float32)
         labels = data['affNISTdata']['label_int'].astype(np.uint8)
         
         index_range = np.arange(len(images))
@@ -89,26 +91,32 @@ def generate_peppered(percentage_of_transformed_images):
         peppered['affNISTdata']['label_int'] = np.append(peppered['affNISTdata']['label_int'], labels_sample)
 
         num_img_peppered = t * images_per_transformation
-        assert peppered['affNISTdata']['image'].shape == (1600, num_img_peppered + 60000)
-        assert peppered['affNISTdata']['label_int'].shape == (num_img_peppered + 60000,)
+        assert peppered['affNISTdata']['image'].shape == (1600, num_img_peppered + TOTAL_TRAINING_IMAGES)
+        assert peppered['affNISTdata']['label_int'].shape == (num_img_peppered + TOTAL_TRAINING_IMAGES,)
         print('Generating... ' + str(int(num_img_peppered/num_img_to_pepper * 100)) + '%', end='\r')
 
-    assert peppered['affNISTdata']['image'].shape == (1600, 60000 + num_img_to_pepper)
-    assert peppered['affNISTdata']['label_int'].shape == (60000 + num_img_to_pepper,)
+    assert peppered['affNISTdata']['image'].shape == (1600, TOTAL_TRAINING_IMAGES + num_img_to_pepper)
+    assert peppered['affNISTdata']['label_int'].shape == (TOTAL_TRAINING_IMAGES + num_img_to_pepper,)
 
     save_file = os.path.join(SAVE_DIR, str(percentage_of_transformed_images) + '_percent.mat')
     spio.savemat(save_file, peppered)
 
 
-def check_output_dir(percentage):
+def check_output_dir(percentage_centered, percentage_transformed):
     if not os.path.exists(SAVE_DIR):
         os.mkdir(SAVE_DIR)
 
-    peppered_file = os.path.join(SAVE_DIR, str(percentage) + '_percent.mat')
+    if percentage_centered != 100:
+        filename = str(percentage_centered) + '_percent_centered_' + str(percentage_transformed) + '_percent_transformed.mat'
+        peppered_file = os.path.join(SAVE_DIR, filename)
+    else:
+        filename = str(percentage_transformed) + '_percent.mat'
+        peppered_file = os.path.join(SAVE_DIR, filename)
+    
     if os.path.exists(peppered_file):
         print('Error: '+ peppered_file +' exists, remove manually to not overwrite')
         sys.exit()
 
 
 if __name__ == '__main__':
-    generate_peppered(30)
+    generate_peppered(100, 30)
