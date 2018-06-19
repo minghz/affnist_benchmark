@@ -9,6 +9,9 @@ from config import cfg
 from PIL import Image
 
 
+TOTAL_TRAINING_IMAGES = 60000
+
+
 def loadmat(filename):
     '''
     this function should be called instead of direct spio.loadmat
@@ -115,39 +118,42 @@ def load_fashion_mnist(batch_size, is_training=True):
 
 def load_affmnist(batch_size, is_training=True):
     if is_training:
-        if cfg.peppered:
-            data_file = os.path.join(cfg.affmnist_data_dir,
-                                     'peppered_training_and_validation_batches',
-                                     cfg.peppered + '_percent.mat')
-        else:
-            data_file = os.path.join(cfg.affmnist_data_dir, 'just_centered', 'training_and_validation.mat')
+        data_file = os.path.join(cfg.affmnist_data_dir,
+                                 'peppered_training_and_validation_batches',
+                                 cfg.centered + '_percent_centered_' + cfg.peppered + '_percent_transformed.mat')
+        
+        images_per_transformation = int((TOTAL_TRAINING_IMAGES * int(cfg.peppered)/100) / 32)
+        num_base_img = int(TOTAL_TRAINING_IMAGES * int(cfg.centered)/100)
+        num_inputs = images_per_transformation * 32 + num_base_img
 
-        images_per_transformation = int((60000 * int(cfg.peppered)/100) / 32)
-        num_inputs = images_per_transformation * 32 + 60000
+        num_training = num_inputs * 84/100
+        num_training_eval = num_inputs - num_training
 
+        # NOTE: Assert we have the correct number of total inputs, as expected
         data = loadmat(data_file)
         images = data['affNISTdata']['image'].transpose().reshape(num_inputs, 40, 40, 1).astype(np.float32)
         labels = data['affNISTdata']['label_int'].astype(np.uint8)
         assert images.shape == (num_inputs, 40, 40, 1)
         assert labels.shape == (num_inputs,)
 
-        default_num_training_inputs = num_inputs - 10000
+        trX = images[:num_training] / 255.
+        trY = labels[:num_training]
 
-        trX = images[:default_num_training_inputs] / 255.
-        trY = labels[:default_num_training_inputs]
+        valX = images[num_training_eval:, ] / 255.
+        valY = labels[num_training_eval:]
 
-        valX = images[10000:, ] / 255.
-        valY = labels[10000:]
-
-        num_tr_batch = default_num_training_inputs // cfg.batch_size
-        num_val_batch = 10000 // cfg.batch_size
+        num_tr_batch = num_training // cfg.batch_size
+        num_val_batch = num_training_eval // cfg.batch_size
 
         return trX, trY, num_tr_batch, valX, valY, num_val_batch
 
     else:
         # NOTE: Swap those two lines below to get some basic transformed test
-        data_file = os.path.join(cfg.affmnist_data_dir, 'transformed', 'test_batches', '15.mat')
-        #data_file = os.path.join(cfg.affmnist_data_dir, 'just_centered', 'test.mat')
+        if cfg.peppered == '0':
+            data_file = os.path.join(cfg.affmnist_data_dir, 'just_centered', 'test.mat')
+        else:
+            data_file = os.path.join(cfg.affmnist_data_dir, 'transformed', 'test_batches', '15.mat')
+
         data = loadmat(data_file)
         images = data['affNISTdata']['image'].transpose().reshape(10000, 40, 40, 1).astype(np.float32)
         labels = data['affNISTdata']['label_int'].astype(np.float32)

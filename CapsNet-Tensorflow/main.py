@@ -10,14 +10,16 @@ from config import cfg
 from utils import load_data
 from capsNet import CapsNet
 
+RESULTS_DIR = cfg.results + '_' + cfg.centered + '_centered_' + cfg.peppered + '_peppered'
+CHECKPOINT_DIR = cfg.checkpoint_dir + '_' + cfg.centered + '_centered_' + cfg.peppered + '_peppered'
 
 def save_to():
-    if not os.path.exists(cfg.results):
-        os.mkdir(cfg.results)
+    if not os.path.exists(RESULTS_DIR):
+        os.mkdir(RESULTS_DIR)
     if cfg.is_training:
-        loss = cfg.results + '/loss.csv'
-        train_acc = cfg.results + '/train_acc.csv'
-        val_acc = cfg.results + '/val_acc.csv'
+        loss = RESULTS_DIR + '/loss.csv'
+        train_acc = RESULTS_DIR + '/train_acc.csv'
+        val_acc = RESULTS_DIR + '/val_acc.csv'
 
         if os.path.exists(val_acc):
             os.remove(val_acc)
@@ -34,7 +36,7 @@ def save_to():
         fd_val_acc.write('step,val_acc\n')
         return(fd_train_acc, fd_loss, fd_val_acc)
     else:
-        test_acc = cfg.results + '/test_acc.csv'
+        test_acc = RESULTS_DIR + '/test_acc.csv'
         if os.path.exists(test_acc):
             os.remove(test_acc)
         fd_test_acc = open(test_acc, 'w')
@@ -43,12 +45,11 @@ def save_to():
 
 
 def prepare_output_dir():
-    if os.path.exists(cfg.results):
-        os.rename(cfg.results, cfg.results + datetime.now().isoformat())
-        #shutil.rmtree(cfg.results)
+    if os.path.exists(RESULTS_DIR):
+        os.rename(RESULTS_DIR, RESULTS_DIR + datetime.now().isoformat())
 
-    if os.path.exists(cfg.checkpoint_dir):
-        shutil.rmtree(cfg.checkpoint_dir)
+    if os.path.exists(CHECKPOINT_DIR):
+        shutil.rmtree(CHECKPOINT_DIR, CHECKPOINT_DIR + datetime.now().isoformat())
 
     if os.path.exists(cfg.logdir):
         shutil.rmtree(cfg.logdir)
@@ -62,7 +63,7 @@ def train(model, session):
     config.gpu_options.allow_growth = True
 
     with session as sess:
-        print("\nNote: all of results will be saved to directory: " + cfg.results)
+        print("\nNote: all of results will be saved to directory: " + RESULTS_DIR)
         for epoch in range(cfg.epoch):
             print("Training for epoch %d/%d:" % (epoch, cfg.epoch))
             if session.should_stop():
@@ -109,8 +110,7 @@ def evaluation(model, session, saver):
     teX, teY, num_te_batch = load_data(cfg.dataset, cfg.batch_size, is_training=False)
     fd_test_acc = save_to()
     with session as sess:
-        saver.restore(sess, tf.train.latest_checkpoint(cfg.checkpoint_dir))
-        print('model restoreeeeeeeeeeeeeeed')
+        saver.restore(sess, tf.train.latest_checkpoint(CHECKPOINT_DIR))
         tf.logging.info('Model restored!')
 
         test_acc = 0
@@ -123,7 +123,7 @@ def evaluation(model, session, saver):
         test_acc = test_acc / (cfg.batch_size * num_te_batch)
         fd_test_acc.write(str(test_acc))
         fd_test_acc.close()
-        print('Test accuracy has been saved to ' + cfg.results + '/test_acc.csv')
+        print('Test accuracy has been saved to ' + RESULTS_DIR + '/test_acc.csv')
 
 
 def main(_):
@@ -139,7 +139,7 @@ def main(_):
         if cfg.is_training:
             session = tf.train.MonitoredTrainingSession(
                 hooks=[tf.train.NanTensorHook(model.total_loss),
-                       tf.train.CheckpointSaverHook(checkpoint_dir=cfg.checkpoint_dir,
+                       tf.train.CheckpointSaverHook(checkpoint_dir=CHECKPOINT_DIR,
                                                     save_steps=cfg.save_checkpoint_steps,
                                                     saver=saver),
                        tf.train.SummarySaverHook(save_steps=cfg.train_sum_freq,
