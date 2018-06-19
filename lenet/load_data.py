@@ -50,19 +50,9 @@ def load_centered(is_training):
     print('Loading centered images')
 
     if is_training:
-        if cfg.peppered and cfg.centered == '100':
-            data_file = os.path.join(cfg.affmnist_data_dir,
-                                     'peppered_training_and_validation_batches',
-                                     cfg.peppered + '_percent.mat')
-        elif cfg.peppered and cfg.centered != '100':
-            data_file = os.path.join(cfg.affmnist_data_dir,
-                                     'peppered_training_and_validation_batches',
-                                     cfg.centered + '_percent_centered_' + cfg.peppered + '_percent_transformed.mat')
-        else: # Likely never to reach this case
-            data_file = os.path.join(cfg.affmnist_data_dir,
-                                    'just_centered',
-                                    'training_and_validation.mat')
-
+        data_file = os.path.join(cfg.affmnist_data_dir,
+                                 'peppered_training_and_validation_batches',
+                                 cfg.centered + '_percent_centered_' + cfg.peppered + '_percent_transformed.mat')
 
         images_per_transformation = int((TOTAL_TRAINING_IMAGES * int(cfg.peppered)/100) / 32)
         num_base_img = int(TOTAL_TRAINING_IMAGES * int(cfg.centered)/100)
@@ -91,8 +81,11 @@ def load_centered(is_training):
 
     else:
         # NOTE: Swap those two lines below to get some basic transformed test
-        data_file = os.path.join(cfg.affmnist_data_dir, 'transformed', 'test_batches', '15.mat')
-        #data_file = os.path.join(cfg.affmnist_data_dir, 'just_centered', 'test.mat')
+        if cfg.peppered == '0':
+            data_file = os.path.join(cfg.affmnist_data_dir, 'just_centered', 'test.mat')
+        else:
+            data_file = os.path.join(cfg.affmnist_data_dir, 'transformed', 'test_batches', '15.mat')
+
         data = loadmat(data_file)
         images = data['affNISTdata']['image'].transpose().reshape(10000, 40, 40, 1).astype(np.float32)
         labels = data['affNISTdata']['label_int'].astype(np.float32)
