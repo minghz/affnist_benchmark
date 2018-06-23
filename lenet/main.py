@@ -140,6 +140,7 @@ def main(_):
     graph = tf.Graph()
     with graph.as_default():
         tf.set_random_seed(1)
+        np.random.seed(1)
         model = LeNet()
         saver = tf.train.Saver()
 
