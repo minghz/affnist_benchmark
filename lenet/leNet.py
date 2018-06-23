@@ -20,7 +20,7 @@ class LeNet(object):
             self._summary()
 
             self.global_step = tf.train.get_or_create_global_step()
-            self.optimizer = tf.train.AdamOptimizer()
+            self.optimizer = tf.train.GradientDescentOptimizer(0.01)
             self.train_op = self.optimizer.minimize(self.loss, global_step=self.global_step)
         else:
             self.images = tf.placeholder(tf.uint8, shape=(cfg.batch_size, 40, 40, 1))
@@ -35,10 +35,13 @@ class LeNet(object):
                                   kernel_size=5,
                                   strides=1)
             assert c1.shape == (cfg.batch_size, 36, 36, 6)
+            # Bias and rectified linear non-linearity.
+            conv1_biases = tf.Variable(tf.zeros([6], dtype=tf.float32))
+            relu1 = tf.nn.relu(tf.nn.bias_add(c1, conv1_biases))
 
         with tf.variable_scope('s2'):
             # TODO Use sub-sampling as defined on paper, not max-pooling
-            s2 = tf.layers.max_pooling2d(c1,
+            s2 = tf.layers.max_pooling2d(relu1,
                                          pool_size=2,
                                          strides=2)
             assert s2.shape == (cfg.batch_size, 18, 18, 6)
