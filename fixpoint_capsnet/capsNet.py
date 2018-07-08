@@ -13,6 +13,15 @@ from utils import reduce_sum
 from capsLayer import CapsLayer
 
 
+# Defining custom operations
+rf = tf.load_op_library('./custom_ops/reshape_fix.so')
+reshape_fix = rf.reshape_fix
+# Gradient registration for out custom operation
+@ops.RegisterGradient("ReshapeFix")
+def _reshape_fix_grad(op, grad):
+  return rf.reshape_fix_grad(grad, op.inputs[0], op.inputs[1], op.inputs[2])
+
+
 epsilon = 1e-9
 
 
