@@ -128,17 +128,12 @@ def check_output_dir(percentage_centered, percentage_transformed):
 
 
 def output_file_name(percentage_centered, percentage_transformed):
-    filename = ''
-
-    if percentage_centered != 100 or percentage_transformed == 0:
-        filename = str(percentage_centered) + '_percent_centered_' + str(percentage_transformed) + '_percent_transformed.mat'
-        peppered_file = os.path.join(SAVE_DIR, filename)
-    else:
-        filename = str(percentage_transformed) + '_percent.mat'
-        peppered_file = os.path.join(SAVE_DIR, filename)
- 
-    return filename
+    return str(percentage_centered) + '_percent_centered_' + str(percentage_transformed) + '_percent_transformed.mat'
 
 
 if __name__ == '__main__':
-    generate_peppered(20, 80)
+    generate_peppered(2, 5)
+    generate_peppered(2, 10)
+    generate_peppered(2, 20)
+    generate_peppered(2, 30)
+    generate_peppered(2, 40)
