@@ -1,2 +1,2 @@
 #!/bin/bash
-nvidia-docker -f Dockerfile.gpu build -t tensorflow_nvidia_docker_setup .
+nvidia-docker build -f Dockerfile.gpu -t tensorflow_nvidia_docker_setup .
