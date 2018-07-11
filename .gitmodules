@@ -1,0 +1,3 @@
+[submodule "CapsNet-Tensorflow"]
+	path = CapsNet-Tensorflow
+	url = https://github.com/minghz/CapsNet-Tensorflow

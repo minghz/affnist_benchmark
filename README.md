@@ -9,7 +9,9 @@ Both aim to train for the affNIST dataset (distorted and tralsated MNIST dataset
 # Description of content #
 `affMNIST_data/` - Contains all affMNIST input data to train the models
 
-`CapsNet-Tensorflow` - CapsNet code. Modified from [naturomics/CapsNet-Tensorflow](https://github.com/naturomics/CapsNet-Tensorflow)
+`capsnet_affmnist` - CapsNet code. Modified from [naturomics/CapsNet-Tensorflow](https://github.com/naturomics/CapsNet-Tensorflow)
+
+`CapsNet-Tensorflow` - CapsNet code with fixed-point accuracy adjustments. From my [my other repo](https://github.com/minghz/CapsNet-Tensorflow)
 
 `lenet/` - LeNet-5 model with a few modifications
 
