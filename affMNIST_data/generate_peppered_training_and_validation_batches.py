@@ -132,8 +132,5 @@ def output_file_name(percentage_centered, percentage_transformed):
 
 
 if __name__ == '__main__':
-    generate_peppered(2, 5)
-    generate_peppered(2, 10)
-    generate_peppered(2, 20)
-    generate_peppered(2, 30)
-    generate_peppered(2, 40)
+    generate_peppered(2, 0)
+
