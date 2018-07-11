@@ -5,6 +5,7 @@ E-mail: naturomics.liao@gmail.com
 """
 
 import tensorflow as tf
+from tensorflow.python.framework import ops
 
 from config import cfg
 from utils import get_batch_data
@@ -33,6 +34,7 @@ class CapsNet(object):
 
             self.build_arch()
             self.loss()
+            self._accuracy()
             self._summary()
 
             # t_vars = tf.trainable_variables()
@@ -144,6 +146,10 @@ class CapsNet(object):
         # regularization scale should be 0.0005*784=0.392
         self.total_loss = self.margin_loss + cfg.regularization_scale * self.reconstruction_err
 
+    def _accuracy(self):
+        correct_prediction = tf.equal(tf.to_int32(self.labels), self.argmax_idx)
+        self.accuracy = tf.reduce_sum(tf.cast(correct_prediction, tf.float32))
+
     # Summary
     def _summary(self):
         train_summary = []
@@ -152,7 +158,5 @@ class CapsNet(object):
         train_summary.append(tf.summary.scalar('train/total_loss', self.total_loss))
         recon_img = tf.reshape(self.decoded, shape=(cfg.batch_size, 40, 40, 1))
         train_summary.append(tf.summary.image('reconstruction_img', recon_img))
+        train_summary.append(tf.summary.scalar('train/accuracy', self.accuracy))
         self.train_summary = tf.summary.merge(train_summary)
-
-        correct_prediction = tf.equal(tf.to_int32(self.labels), self.argmax_idx)
-        self.accuracy = tf.reduce_sum(tf.cast(correct_prediction, tf.float32))
