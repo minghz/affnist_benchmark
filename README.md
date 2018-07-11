@@ -13,11 +13,9 @@ Both aim to train for the affNIST dataset (distorted and tralsated MNIST dataset
 
 `lenet/` - LeNet-5 model with a few modifications
 
-`lenet2/` - Variation on `lenet/` (using Supervisor instead of MonitoredTrainingSession)
+`Dockerfile.gpu run_gpu.sh` - Used to create Docker images and run on NVIDIA CUDA GPU
 
-`lenet3/` - Variation on `lenet/` (regress to take 28x28 size mnist inputs)
-
-`Dockerfile run.sh` - Used to create Docker images and run on NVIDIA CUDA GPU
+`Dockerfile.cpu run_cpu.sh` - Used to create Docker images and run on CPU
 
 # Benchmarks #
 1. We want to find the rate of learning from both networks. How fast do they learn to an acceptable accuracy?
@@ -37,10 +35,19 @@ Both aim to train for the affNIST dataset (distorted and tralsated MNIST dataset
 # Docker env setup
 Added custom modifications to run with affmnist dataset
 
+# Docker setup
+* Build the image defined by the Dockerfile
+
+  `docker build -f Dockerfile.cpu -t tensorflow_nvidia_docker_setup .`
+
+* Run an interactive bash sell within the container
+
+  `docker run --rm -it tensorflow_docker_setup bash`
+
 # Docker setup for nvidia-cuda
 * Build the image defined by the Dockerfile
 
-  `nvidia-docker build -t tensorflow_nvidia_docker_setup .`
+  `nvidia-docker -f Dockerfile.gpu build -t tensorflow_nvidia_docker_setup .`
 
 * Run an interactive bash sell within the container
 
