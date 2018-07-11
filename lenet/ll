@@ -1,0 +1,10 @@
+python main.py --peppered=5 --centered=2 
+python main.py --peppered=5 --centered=2 --is_training=False
+python main.py --peppered=10 --centered=2 
+python main.py --peppered=10 --centered=2 --is_training=False
+python main.py --peppered=20 --centered=2 
+python main.py --peppered=20 --centered=2 --is_training=False
+python main.py --peppered=30 --centered=2 
+python main.py --peppered=30 --centered=2 --is_training=False
+python main.py --peppered=40 --centered=2 
+python main.py --peppered=40 --centered=2 --is_training=False
