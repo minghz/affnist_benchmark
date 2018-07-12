@@ -19,7 +19,7 @@ epsilon = 1e-9
 class CapsNet(object):
     def __init__(self, is_training=True):
         if is_training:
-            self.X, self.labels = get_batch_data(cfg.dataset, cfg.batch_size, cfg.num_threads)
+            self.X, self.labels = get_batch_data(cfg.batch_size, cfg.num_threads)
             self.Y = tf.one_hot(self.labels, depth=10, axis=1, dtype=tf.float32)
 
             self.build_arch()
