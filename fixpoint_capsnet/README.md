@@ -1,1 +1,1 @@
-Added custom modifications to run with affmnist dataset
+Added custom modifications to run with affnist dataset

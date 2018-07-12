@@ -7,9 +7,9 @@ There are two models in this project.
 Both aim to train for the affNIST dataset (distorted and tralsated MNIST dataset, of sixe 40x40)
 
 # Description of content #
-`affMNIST_data/` - Contains all affMNIST input data to train the models
+`affNIST_data/` - Contains all affNIST input data to train the models
 
-`capsnet_affmnist` - CapsNet code. Modified from [naturomics/CapsNet-Tensorflow](https://github.com/naturomics/CapsNet-Tensorflow)
+`capsnet_affnist` - CapsNet code. Modified from [naturomics/CapsNet-Tensorflow](https://github.com/naturomics/CapsNet-Tensorflow)
 
 `CapsNet-Tensorflow` - CapsNet code with fixed-point accuracy adjustments. From my [my other repo](https://github.com/minghz/CapsNet-Tensorflow)
 
@@ -35,7 +35,7 @@ Both aim to train for the affNIST dataset (distorted and tralsated MNIST dataset
 2. ?
 
 # Docker env setup
-Added custom modifications to run with affmnist dataset
+Added custom modifications to run with affnist dataset
 
 # Docker setup
 * Build the image defined by the Dockerfile

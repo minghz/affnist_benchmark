@@ -116,9 +116,9 @@ def load_fashion_mnist(batch_size, is_training=True):
         return teX / 255., teY, num_te_batch
 
 
-def load_affmnist(batch_size, is_training=True):
+def load_affnist(batch_size, is_training=True):
     if is_training:
-        data_file = os.path.join(cfg.affmnist_data_dir,
+        data_file = os.path.join(cfg.affnist_data_dir,
                                  'peppered_training_and_validation_batches',
                                  cfg.centered + '_percent_centered_' + cfg.peppered + '_percent_transformed.mat')
         
@@ -150,9 +150,9 @@ def load_affmnist(batch_size, is_training=True):
     else:
         # NOTE: Swap those two lines below to get some basic transformed test
         if cfg.peppered == '0':
-            data_file = os.path.join(cfg.affmnist_data_dir, 'just_centered', 'test.mat')
+            data_file = os.path.join(cfg.affnist_data_dir, 'just_centered', 'test.mat')
         else:
-            data_file = os.path.join(cfg.affmnist_data_dir, 'transformed', 'test_batches', '15.mat')
+            data_file = os.path.join(cfg.affnist_data_dir, 'transformed', 'test_batches', '15.mat')
 
         data = loadmat(data_file)
         images = data['affNISTdata']['image'].transpose().reshape(10000, 40, 40, 1).astype(np.float32)
@@ -172,8 +172,8 @@ def load_data(dataset, batch_size, is_training=True, one_hot=False):
         return load_mnist(batch_size, is_training)
     elif dataset == 'fashion-mnist':
         return load_fashion_mnist(batch_size, is_training)
-    elif dataset == 'affmnist':
-        return load_affmnist(batch_size, is_training)
+    elif dataset == 'affnist':
+        return load_affnist(batch_size, is_training)
     else:
         raise Exception('Invalid dataset, please check the name of dataset:', dataset)
 
@@ -183,8 +183,8 @@ def get_batch_data(dataset, batch_size, num_threads):
         trX, trY, num_tr_batch, valX, valY, num_val_batch = load_mnist(batch_size, is_training=True)
     elif dataset == 'fashion-mnist':
         trX, trY, num_tr_batch, valX, valY, num_val_batch = load_fashion_mnist(batch_size, is_training=True)
-    elif dataset == 'affmnist':
-        trX, trY, num_tr_batch, valX, valY, num_val_batch = load_affmnist(batch_size, is_training=True)
+    elif dataset == 'affnist':
+        trX, trY, num_tr_batch, valX, valY, num_val_batch = load_affnist(batch_size, is_training=True)
 
     data_queues = tf.train.slice_input_producer([trX, trY])
     X, Y = tf.train.shuffle_batch(data_queues, num_threads=num_threads,

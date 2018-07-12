@@ -31,10 +31,10 @@ flags.DEFINE_string('checkpoint_dir', 'checkpoint_dir', 'Dir checkpoints are sav
 flags.DEFINE_integer('save_checkpoint_steps', 5, 'save checkpoint every #(steps)')
 
 flags.DEFINE_boolean('is_training', True, 'train or predict phase')
-flags.DEFINE_string('peppered', '0', 'affmnist peppered with transformed images of such percentage')
-flags.DEFINE_string('centered', '2', 'affmnist centered images, percent of 60k')
-flags.DEFINE_string('dataset', 'affmnist', 'The name of dataset mnist, fashion-mnist')
-flags.DEFINE_string('affmnist_data_dir', '../affMNIST_data', 'Dir for affmnist data')
+flags.DEFINE_string('peppered', '0', 'affnist peppered with transformed images of such percentage')
+flags.DEFINE_string('centered', '2', 'affnist centered images, percent of 60k')
+flags.DEFINE_string('dataset', 'affnist', 'The name of dataset mnist, fashion-mnist')
+flags.DEFINE_string('affnist_data_dir', '../affNIST_data', 'Dir for affnist data')
 
 flags.DEFINE_string('logdir', 'logdir', 'logs directory')
 flags.DEFINE_integer('train_sum_freq', 5, 'the frequency of saving train summary(step)')

@@ -50,7 +50,7 @@ def load_centered(is_training):
     print('Loading centered images')
 
     if is_training:
-        data_file = os.path.join(cfg.affmnist_data_dir,
+        data_file = os.path.join(cfg.affnist_data_dir,
                                  'peppered_training_and_validation_batches',
                                  cfg.centered + '_percent_centered_' + cfg.peppered + '_percent_transformed.mat')
 
@@ -82,9 +82,9 @@ def load_centered(is_training):
     else:
         # NOTE: Swap those two lines below to get some basic transformed test
         if cfg.peppered == '0':
-            data_file = os.path.join(cfg.affmnist_data_dir, 'just_centered', 'test.mat')
+            data_file = os.path.join(cfg.affnist_data_dir, 'just_centered', 'test.mat')
         else:
-            data_file = os.path.join(cfg.affmnist_data_dir, 'transformed', 'test_batches', '15.mat')
+            data_file = os.path.join(cfg.affnist_data_dir, 'transformed', 'test_batches', '15.mat')
 
         data = loadmat(data_file)
         images = data['affNISTdata']['image'].transpose().reshape(10000, 40, 40, 1).astype(np.float32)
