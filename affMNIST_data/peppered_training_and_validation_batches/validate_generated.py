@@ -58,27 +58,10 @@ def validate_base_and_peppered(percent_centered, percent_peppered):
     print(filename + ' OK. Centered: ' + str(num_img_base) + ' Peppered: ' + str(num_img_peppered) + ' Total: ' + str(num_img_base + num_img_peppered))
 
 
-def validate_peppered(percent_peppered):
-    percent_peppered = int(filename.split('_')[0])
-
-    images_per_transformation = int((TOTAL_TRAINING_IMAGES * percent_peppered/100.0) / 32)
-    num_img_peppered = images_per_transformation * 32
-
-    data = loadmat(filename)
-
-    assert data['affNISTdata']['image'].shape == (1600, TOTAL_TRAINING_IMAGES + num_img_peppered)
-
-    print(filename + ' OK. Centered: ' + str(TOTAL_TRAINING_IMAGES) + ' Peppered: ' + str(num_img_peppered) + ' Total: ' + str(TOTAL_TRAINING_IMAGES + num_img_peppered))
-
-
 def validate(filename):
     print('Validating ' + filename, end='\r')
-
     filename_array = filename.split('_')
-    if len(filename_array) > 2:
-        validate_base_and_peppered(filename_array[0], filename_array[3])
-    else:
-        validate_peppered(filename_array[0])
+    validate_base_and_peppered(filename_array[0], filename_array[3])
 
 
 if __name__ == '__main__':
