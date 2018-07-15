@@ -56,7 +56,7 @@ def prepare_output_dir():
 
 
 def train(model, session):
-    trX, trY, num_tr_batch, valX, valY, num_val_batch = load_data(cfg.dataset, cfg.batch_size, is_training=True)
+    trX, trY, num_tr_batch, valX, valY, num_val_batch = load_data(cfg.batch_size, is_training=True)
 
     fd_train_acc, fd_loss, fd_val_acc = save_to()
     config = tf.ConfigProto()
@@ -107,7 +107,7 @@ def train(model, session):
 
 
 def evaluation(model, session, saver):
-    teX, teY, num_te_batch = load_data(cfg.dataset, cfg.batch_size, is_training=False)
+    teX, teY, num_te_batch = load_data(cfg.batch_size, is_training=False)
     fd_test_acc = save_to()
     with session as sess:
         saver.restore(sess, tf.train.latest_checkpoint(CHECKPOINT_DIR))

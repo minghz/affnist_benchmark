@@ -14,7 +14,7 @@ flags.DEFINE_float('lambda_val', 0.5, 'down weight of the loss for absent digit 
 
 # for training
 flags.DEFINE_integer('batch_size', 128, 'batch size')
-flags.DEFINE_integer('epoch', 10, 'epoch')
+flags.DEFINE_integer('epoch', 20, 'epoch')
 flags.DEFINE_integer('iter_routing', 3, 'number of iterations in routing algorithm')
 flags.DEFINE_boolean('mask_with_y', True, 'use the true label to mask out target capsule or not')
 
@@ -28,12 +28,11 @@ flags.DEFINE_float('regularization_scale', 0.392, 'regularization coefficient fo
 flags.DEFINE_integer('num_threads', 8, 'number of threads of enqueueing examples')
 
 flags.DEFINE_string('checkpoint_dir', 'checkpoint_dir', 'Dir checkpoints are saved')
-flags.DEFINE_integer('save_checkpoint_steps', 5, 'save checkpoint every #(steps)')
+flags.DEFINE_integer('save_checkpoint_steps', 10, 'save checkpoint every #(steps)')
 
 flags.DEFINE_boolean('is_training', True, 'train or predict phase')
 flags.DEFINE_string('peppered', '0', 'affnist peppered with transformed images of such percentage')
 flags.DEFINE_string('centered', '2', 'affnist centered images, percent of 60k')
-flags.DEFINE_string('dataset', 'affnist', 'The name of dataset mnist, fashion-mnist')
 flags.DEFINE_string('affnist_data_dir', '../affNIST_data', 'Dir for affnist data')
 
 flags.DEFINE_string('logdir', 'logdir', 'logs directory')
