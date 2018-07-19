@@ -1,3 +1,6 @@
 [submodule "CapsNet-Tensorflow"]
 	path = CapsNet-Tensorflow
 	url = https://github.com/minghz/CapsNet-Tensorflow
+[submodule "capsnet_affnist"]
+	path = capsnet_affnist
+	url = https://github.com/minghz/capsnet_affnist.git
